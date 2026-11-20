@@ -7,8 +7,12 @@ public class GridCell : MonoBehaviour
     [Header("Visual Components")]
     [SerializeField] private TextMeshProUGUI textNumber;
     [SerializeField] private Image bkgdImage;
+
+    [Header("Color Communication")]
     [SerializeField] private Color bkgdColorSelected;
     [SerializeField] private Color bkgdColorRelated;
+    [SerializeField] private Color textColorCorrect;
+    [SerializeField] private Color textColorIncorrect;
 
     // Variables Needed
     private int currentNumber;
@@ -16,12 +20,24 @@ public class GridCell : MonoBehaviour
     [HideInInspector] public int rowID;
     [HideInInspector] public int colID;
 
+    #region Initialization Functions
     public void SetRowColumn(int row, int column)
     {
         rowID = row;
         colID = column;
     }
+    public void SetEmpty()
+    {
+        emptyCell = true;
+        SetNumber(0);
+    }
+    public bool IsOriginallyEmpty()
+    {
+        return emptyCell;
+    }
+    #endregion
 
+    #region Number Get/Set
     public void SetNumber(int number)
     {
         currentNumber = number;
@@ -34,17 +50,9 @@ public class GridCell : MonoBehaviour
     {
         return currentNumber;
     }
+    #endregion
 
-    public void SetEmpty()
-    {
-        emptyCell = true;
-        SetNumber(0);
-    }
-    public bool IsOriginallyEmpty()
-    {
-        return emptyCell;
-    }
-
+    #region Visual Coloring
     public void HighlightCell(bool playerSelected)
     {
         if (playerSelected) bkgdImage.color = bkgdColorSelected;
@@ -54,9 +62,14 @@ public class GridCell : MonoBehaviour
     {
         bkgdImage.color = Color.white;
     }
-
-    public void ColorText(Color color)
+    public void UpdateTextColor(bool correct)
     {
-        textNumber.color = color;
+        if (!IsOriginallyEmpty())
+        {
+            textNumber.color = Color.white;
+            return;
+        }
+        textNumber.color = (correct ? textColorCorrect : textColorIncorrect);
     }
+    #endregion
 }

@@ -218,18 +218,12 @@ public class GridManager : MonoBehaviour
     }
     public void EvaluateCell(GridCell cell)
     {
-        cell.ColorText(ValidateNumber(cell.rowID, cell.colID, cell.GetCurrentNumber()) ? Color.yellow : Color.red);
+        cell.UpdateTextColor(ValidateNumber(cell.rowID, cell.colID, cell.GetCurrentNumber()));
 
         foreach (GridCell gridCell in GetAllRelatedCells(cell))
         {
-            if (ValidateNumber(gridCell.rowID, gridCell.colID, gridCell.GetCurrentNumber()))
-            {
-                gridCell.ColorText(gridCell.IsOriginallyEmpty() ? Color.yellow : Color.white);
-            }
-            else
-            {
-                gridCell.ColorText(gridCell.IsOriginallyEmpty() ? Color.red : Color.white);
-            }
+            gridCell.UpdateTextColor(ValidateNumber
+                (gridCell.rowID, gridCell.colID, gridCell.GetCurrentNumber()));
         }
 
         EvaluateBoard();
@@ -252,7 +246,6 @@ public class GridManager : MonoBehaviour
         }
 
         // If all valid, Sudoku is solved
-        Debug.Log("solved");
         GameManager.Instance.DisplayVictory();
     }
     #endregion

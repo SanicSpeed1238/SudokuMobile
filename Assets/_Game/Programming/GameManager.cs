@@ -6,6 +6,7 @@ public class GameManager : MonoBehaviour
     [Header("Important Components")]
     [SerializeField] private GameObject playerInput;
     [SerializeField] private GameObject winScreen;
+    [SerializeField] private GameObject clearScreen;
     [SerializeField] private GameObject resetScreen;
 
     // Variables Needed
@@ -14,6 +15,7 @@ public class GameManager : MonoBehaviour
     private void Awake()
     {
         Instance = this;
+        Application.targetFrameRate = 60;
     }
 
     public void RestartScene()
@@ -26,7 +28,11 @@ public class GameManager : MonoBehaviour
         playerInput.SetActive(false);
         winScreen.SetActive(true);
     }
-
+    public void DisplayClear(bool display)
+    {
+        playerInput.SetActive(!display);
+        clearScreen.SetActive(display);
+    }
     public void DisplayReset(bool display)
     {
         playerInput.SetActive(!display);

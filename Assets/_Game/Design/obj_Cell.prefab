@@ -56,6 +56,8 @@ MonoBehaviour:
   bkgdImage: {fileID: 8142813345689697832}
   bkgdColorSelected: {r: 1, g: 0.490047, b: 0, a: 1}
   bkgdColorRelated: {r: 1, g: 0.88235295, b: 0.50980395, a: 1}
+  textColorCorrect: {r: 1, g: 1, b: 0, a: 1}
+  textColorIncorrect: {r: 1, g: 0.09803922, b: 0, a: 1}
   rowID: 0
   colID: 0
 --- !u!114 &7010096947377050621
