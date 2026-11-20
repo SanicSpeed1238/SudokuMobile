@@ -12,15 +12,10 @@ public class GridCell : MonoBehaviour
 
     // Variables Needed
     private int currentNumber;
-    private int correctNumber;
     private bool emptyCell;
     [HideInInspector] public int rowID;
     [HideInInspector] public int colID;
 
-    private void Start()
-    {
-        currentNumber = 0;
-    }
     public void SetRowColumn(int row, int column)
     {
         rowID = row;
@@ -30,27 +25,19 @@ public class GridCell : MonoBehaviour
     public void SetNumber(int number)
     {
         currentNumber = number;
-        textNumber.text = "" + number;
-        if (number == 0) textNumber.text = "";
-    }
-    public void CheckNumber()
-    {
-        // if GridManager Evaluate Cell
-        textNumber.color = Color.white;
+        GridManager.Instance.EvaluateCell(this);
+
+        textNumber.text = "";
+        if (number != 0) textNumber.text += number;
     }
     public int GetCurrentNumber()
     {
         return currentNumber;
     }
-    public int GetCorrectNumber()
-    {
-        return correctNumber;
-    }
 
     public void SetEmpty()
     {
         emptyCell = true;
-        correctNumber = currentNumber;
         SetNumber(0);
     }
     public bool IsOriginallyEmpty()
@@ -66,5 +53,10 @@ public class GridCell : MonoBehaviour
     public void UnhighlightCell()
     {
         bkgdImage.color = Color.white;
+    }
+
+    public void ColorText(Color color)
+    {
+        textNumber.color = color;
     }
 }

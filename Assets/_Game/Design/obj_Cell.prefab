@@ -54,8 +54,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GridCell
   textNumber: {fileID: 9086221302651182361}
   bkgdImage: {fileID: 8142813345689697832}
-  bkgdColorSelected: {r: 0.19607843, g: 0.43137255, b: 1, a: 1}
-  bkgdColorRelated: {r: 0.39215687, g: 0.7058824, b: 1, a: 1}
+  bkgdColorSelected: {r: 1, g: 0.490047, b: 0, a: 1}
+  bkgdColorRelated: {r: 1, g: 0.88235295, b: 0.50980395, a: 1}
   rowID: 0
   colID: 0
 --- !u!114 &7010096947377050621

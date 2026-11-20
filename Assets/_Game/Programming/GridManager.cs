@@ -17,6 +17,7 @@ public class GridManager : MonoBehaviour
     public static GridManager Instance;
     private GridCell[,] cells = new GridCell[9, 9];
     private GridCell currentCell;
+    private bool gridInitialized;
 
     private void Awake()
     {
@@ -24,6 +25,7 @@ public class GridManager : MonoBehaviour
     }
     private void Start()
     {
+        gridInitialized = false;
         GenerateSudokuBoard();
     }
 
@@ -42,6 +44,7 @@ public class GridManager : MonoBehaviour
         }
         GenerateNumbers();
         EmptyCells(Random.Range(minEmptyCells, maxEmptyCells+1));
+        gridInitialized = true;
     }  
     private bool GenerateNumbers()
     {
@@ -54,7 +57,7 @@ public class GridManager : MonoBehaviour
                 {
                     // Create Numbers 1-9
                     // ------------------
-                    List<int> numbers = new List<int>();
+                    List<int> numbers = new();
                     for (int i = 1; i <= 9; i++) { numbers.Add(i); }
 
                     // Shuffle Numbers
@@ -62,7 +65,6 @@ public class GridManager : MonoBehaviour
                     for (int i = 0; i < numbers.Count; i++)
                     {
                         int randomIndex = Random.Range(i, numbers.Count);
-
                         (numbers[i], numbers[randomIndex]) =
                             (numbers[randomIndex], numbers[i]);
                     }
@@ -77,7 +79,9 @@ public class GridManager : MonoBehaviour
 
                             // Keep Placement
                             if (GenerateNumbers())
+                            {
                                 return true;
+                            }
 
                             // Undo Placement
                             cells[row, col].SetNumber(0);
@@ -92,39 +96,7 @@ public class GridManager : MonoBehaviour
 
         // No empty cells remain
         return true;
-    }
-    private bool ValidateNumber(int row, int col, int number)
-    {
-        // Check Row
-        // ---------
-        for (int c = 0; c < 9; c++)
-        {
-            if (cells[row, c].GetCurrentNumber() == number)
-                return false;
-        }
-
-        // Check Column
-        // ------------
-        for (int r = 0; r < 9; r++)
-        {
-            if (cells[r, col].GetCurrentNumber() == number)
-                return false;
-        }
-
-        // Check 3x3 Subgrid
-        // -----------------
-        int startRow = (row / 3) * 3;
-        int startCol = (col / 3) * 3;
-        for (int r = startRow; r < startRow + 3; r++)
-        {
-            for (int c = startCol; c < startCol + 3; c++)
-            {
-                if (cells[r, c].GetCurrentNumber() == number)
-                    return false;
-            }
-        }
-        return true;
-    }
+    } 
     private void EmptyCells(int amount)
     {
         int removed = 0;
@@ -143,20 +115,6 @@ public class GridManager : MonoBehaviour
     #endregion
 
     #region Getting Cell References
-    private Vector2Int GetCellIndex(GridCell target)
-    {
-        for (int row = 0; row < 9; row++)
-        {
-            for (int col = 0; col < 9; col++)
-            {
-                if (cells[row, col] == target)
-                {
-                    return new Vector2Int(row, col);
-                }
-            }
-        }
-        return new Vector2Int(-1, -1);
-    }
     private List<GridCell> GetCellsInRow(int row)
     {
         List<GridCell> result = new();
@@ -217,6 +175,89 @@ public class GridManager : MonoBehaviour
     }
     #endregion
 
+    #region Number Validation
+    private bool ValidateNumber(int row, int col, int number)
+    {
+        // Check Row
+        // ---------
+        for (int c = 0; c < 9; c++)
+        {
+            if (c == col)
+                continue;
+            if (cells[row, c].GetCurrentNumber() == number)
+                return false;
+        }
+
+        // Check Column
+        // ------------
+        for (int r = 0; r < 9; r++)
+        {
+            if (r == row)
+                continue;
+            if (cells[r, col].GetCurrentNumber() == number)
+                return false;
+        }
+
+        // Check 3x3 Subgrid
+        // -----------------
+        int startRow = (row / 3) * 3;
+        int startCol = (col / 3) * 3;
+        for (int r = startRow; r < startRow + 3; r++)
+        {
+            for (int c = startCol; c < startCol + 3; c++)
+            {
+                if (r == row && c == col)
+                    continue;
+                if (cells[r, c].GetCurrentNumber() == number)
+                    return false;
+            }
+        }
+
+        // No Duplicates, All Good
+        return true;
+    }
+    public void EvaluateCell(GridCell cell)
+    {
+        cell.ColorText(ValidateNumber(cell.rowID, cell.colID, cell.GetCurrentNumber()) ? Color.yellow : Color.red);
+
+        foreach (GridCell gridCell in GetAllRelatedCells(cell))
+        {
+            if (ValidateNumber(gridCell.rowID, gridCell.colID, gridCell.GetCurrentNumber()))
+            {
+                gridCell.ColorText(gridCell.IsOriginallyEmpty() ? Color.yellow : Color.white);
+            }
+            else
+            {
+                gridCell.ColorText(gridCell.IsOriginallyEmpty() ? Color.red : Color.white);
+            }
+        }
+
+        EvaluateBoard();
+    }
+    public void EvaluateBoard()
+    {
+        if (!gridInitialized) return;
+
+        for (int row = 0; row < 9; row++)
+        {
+            for (int col = 0; col < 9; col++)
+            {
+                int number = cells[row, col].GetCurrentNumber();
+
+                if (number == 0)
+                    return;
+                if (!ValidateNumber(row, col, number))
+                    return;
+            }
+        }
+
+        // If all valid, Sudoku is solved
+        Debug.Log("solved");
+        GameManager.Instance.DisplayVictory();
+    }
+    #endregion
+
+    #region Player Input
     public void HighlightCells(GridCell cell)
     {
         cell.HighlightCell(true);
@@ -224,7 +265,6 @@ public class GridManager : MonoBehaviour
         {
             gridCell.HighlightCell(false);
         }
-
         currentCell = cell;
     }
     public void UnhighlightCells()
@@ -236,7 +276,6 @@ public class GridManager : MonoBehaviour
         {
             gridCell.UnhighlightCell();
         }
-
         currentCell = null;
     }
 
@@ -256,4 +295,5 @@ public class GridManager : MonoBehaviour
             }
         }
     }
+    #endregion
 }
